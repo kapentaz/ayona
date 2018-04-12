@@ -1,7 +1,6 @@
 package com.ayona;
 
 import org.junit.Test;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 public class AyonaTest {
@@ -12,8 +11,7 @@ public class AyonaTest {
 				.add(() -> {
 					ApiCallInfo<String, String> info = new ApiCallInfo<>();
 					info.setId(ctx -> "기본 호출 테스트");
-					info.setUri(ctx -> "http://localhost");
-					info.setMethod(HttpMethod.GET);
+					info.get(ctx -> "http://localhost");
 					info.setMediaType(MediaType.APPLICATION_JSON);
 					info.setReq(ctx -> "");
 					info.setRes((ctx, res) -> {
@@ -23,8 +21,7 @@ public class AyonaTest {
 				.addAsync(() -> {
 					ApiCallInfo<String, String> info = new ApiCallInfo<>();
 					info.setId(ctx -> "비동기 호출 테스트");
-					info.setUri(ctx -> "http://localhost");
-					info.setMethod(HttpMethod.GET);
+					info.get(ctx -> "http://localhost");
 					info.setMediaType(MediaType.APPLICATION_JSON);
 					info.setReq(ctx -> "");
 					info.setRes((ctx, res) -> {
@@ -35,8 +32,7 @@ public class AyonaTest {
 				.addAsync(() -> {
 					ApiCallInfo<String, String> info = new ApiCallInfo<>();
 					info.setId(ctx -> "비동기 호출 테스트2");
-					info.setUri(ctx -> "http://localhost");
-					info.setMethod(HttpMethod.GET);
+					info.get(ctx -> "http://localhost");
 					info.setMediaType(MediaType.APPLICATION_JSON);
 					info.setReq(ctx -> "");
 					info.setRes((ctx, res) -> {
