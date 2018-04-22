@@ -1,5 +1,6 @@
 package com.ayona;
 
+import com.ayona.validation.ValidChecker;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 
@@ -35,8 +36,7 @@ public class AyonaTest {
 					info.get(ctx -> "http://localhost");
 					info.setMediaType(MediaType.APPLICATION_JSON);
 					info.setReq(ctx -> "");
-					info.setRes((ctx, res) -> {
-					});
+					info.setRes((ctx, res) -> ValidChecker.target(res).notNull().size(1, 500).validate());
 					return info;
 				})
 				.loop(1)
