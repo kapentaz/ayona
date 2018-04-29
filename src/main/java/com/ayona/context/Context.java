@@ -5,16 +5,20 @@ package com.ayona.context;
  */
 public interface Context {
 
-	void setVariable(String name, Object value);
+	void set(String name, Object value);
 
-	String[] getVariableNames();
+	Object get(String name);
 
-	Object getVariable(String name);
+	<T> T get(String name, Class<T> type);
 
-	<T> T getVariable(String name, Class<T> type);
+	Object remove(String name);
 
-	Object removeVariable(String name);
+	String[] getNames();
 
-	boolean hasVariable(String name);
+	boolean has(String name);
+
+	default String concat(String name, String value) {
+		return get(name) + value;
+	}
 
 }

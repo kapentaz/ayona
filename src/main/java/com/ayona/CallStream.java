@@ -4,8 +4,10 @@ import com.ayona.command.*;
 import com.ayona.context.Context;
 import com.ayona.context.ContextSupport;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
@@ -81,12 +83,12 @@ public class CallStream {
 		executor.shutdown();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void printResult() {
-		List variable = this.context.getVariable(RecorderCaller.RECORD_KEY_NAME, List.class);
-		for (Object o : variable) {
-			System.out.println(o);
-		}
-		System.out.println(variable.size());
+		List variable = this.context.get(RecorderCaller.RECORD_KEY_NAME, List.class);
+		Optional.ofNullable(variable)
+				.orElse(Collections.emptyList())
+				.forEach(System.out::println);
 	}
 
 }

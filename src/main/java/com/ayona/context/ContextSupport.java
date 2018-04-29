@@ -11,31 +11,32 @@ public class ContextSupport implements Context {
 	private final Map<String, Object> variables = new ConcurrentHashMap<>();
 
 	@Override
-	public void setVariable(String name, Object value) {
+	public void set(String name, Object value) {
 		variables.put(name, value);
 	}
 
 	@Override
-	public String[] getVariableNames() {
+	public String[] getNames() {
 		return this.variables.keySet().toArray(new String[this.variables.size()]);
 	}
 
 	@Override
-	public Object getVariable(String name) {
+	public Object get(String name) {
 		return variables.get(name);
 	}
 
 	@Override
-	public Object removeVariable(String name) {
+	public Object remove(String name) {
 		return variables.remove(name);
 	}
 
 	@Override
-	public boolean hasVariable(String name) {
+	public boolean has(String name) {
 		return variables.containsKey(name);
 	}
 
-	public <T> T getVariable(String name, Class<T> type) {
+	@Override
+	public <T> T get(String name, Class<T> type) {
 		return type.cast(variables.get(name));
 	}
 

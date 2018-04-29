@@ -21,32 +21,34 @@ public abstract class RecorderCaller<T extends CallInfo> implements Caller<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void execute(T t, Context context) {
-		Object id = t.getId().get(context);
-		CallInfoRecord callInfoRecord = new CallInfoRecord(id);
+		t.children().forEach(i -> {
+			Object id = i.getId().get(context);
+			CallInfoRecord callInfoRecord = new CallInfoRecord(id);
 
-		long start = System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 
-		try {
-			callInfoRecord.setInput(t.toString(context));
-			Object result = doExecute(t, context);
-			callInfoRecord.setResult(result);
-		} catch (Throwable e) {
-			callInfoRecord.setThrowable(e);
-			throw e;
-		}
+			try {
+				callInfoRecord.setInput(i.toString(context));
+				Object result = doExecute(((T) i), context);
+				callInfoRecord.setResult(result);
+			} catch (Throwable e) {
+				callInfoRecord.setThrowable(e);
+				throw e;
+			}
 
-		long end = System.currentTimeMillis();
-		long executedTime = end - start;
-		log.debug("[{}] executed time: {}ms", id, executedTime);
+			long end = System.currentTimeMillis();
+			long executedTime = end - start;
+			log.info("[{}] executed time: {}ms", id, executedTime);
 
-		callInfoRecord.setExecutedTime(executedTime);
-		callInfoRecord.setEndDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(end), ZoneId.systemDefault()));
+			callInfoRecord.setExecutedTime(executedTime);
+			callInfoRecord.setEndDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(end), ZoneId.systemDefault()));
 
-		if (!context.hasVariable(RECORD_KEY_NAME)) {
-			context.setVariable(RECORD_KEY_NAME, new CopyOnWriteArrayList<>());
-		}
-		List callInfoRecords = context.getVariable(RECORD_KEY_NAME, List.class);
-		callInfoRecords.add(callInfoRecord);
+			if (!context.has(RECORD_KEY_NAME)) {
+				context.set(RECORD_KEY_NAME, new CopyOnWriteArrayList<>());
+			}
+			List callInfoRecords = context.get(RECORD_KEY_NAME, List.class);
+			callInfoRecords.add(callInfoRecord);
+		});
 	}
 
 	public abstract Object doExecute(T t, Context context);
