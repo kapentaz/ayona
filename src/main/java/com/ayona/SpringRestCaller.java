@@ -13,7 +13,15 @@ import org.springframework.web.client.RestTemplate;
  */
 public class SpringRestCaller extends RecorderCaller<ApiCallInfo<?, ?>> {
 
-	private RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate;
+
+	public SpringRestCaller() {
+		this(new RestTemplate());
+	}
+
+	public SpringRestCaller(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

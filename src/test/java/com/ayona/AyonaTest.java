@@ -19,6 +19,13 @@ public class AyonaTest {
 	}
 
 	@Test
+	public void name() throws Exception {
+		CallStream.create()
+				.run();
+
+	}
+
+	@Test
 	public void test() throws Exception {
 		CallStream.create()
 				.add(() -> ApiCallInfo.<String, String>builder()

@@ -1,15 +1,11 @@
 package com.ayona;
 
 import com.ayona.command.*;
-import com.ayona.context.Context;
-import com.ayona.context.ContextSupport;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 public class CallStream {
@@ -17,26 +13,24 @@ public class CallStream {
 	private List<Executable> commands = new LinkedList<>();
 	private List<Executable> exhaustedCommands = new LinkedList<>();
 
-	private Caller caller = new SpringRestCaller();
-	private ExecutorService executor = Executors.newCachedThreadPool();
-	private Context context;
+	private AyonaConfiguration config;
 
 	private CallStream() {
 	}
 
 	public static CallStream create() {
-		return create(new ContextSupport());
+		return create(AyonaConfiguration.getDefault());
 	}
 
-	public static CallStream create(Context context) {
+	public static CallStream create(AyonaConfiguration configuration) {
 		CallStream callStream = new CallStream();
-		callStream.context = context;
+		callStream.config = configuration;
 		return callStream;
 	}
 
 	@SuppressWarnings("unchecked")
 	public CallStream add(Supplier<CallInfo> callInfo) {
-		this.commands.add(new ExecutionCommand<>(caller, context, callInfo.get()));
+		this.commands.add(new ExecutionCommand<>(config.getCaller(), config.getContext(), callInfo.get()));
 		return this;
 	}
 
@@ -51,7 +45,7 @@ public class CallStream {
 				return this;
 			}
 		}
-		this.commands.add(new AsyncExecutionCommand<>(caller, context, callInfo.get()));
+		this.commands.add(new AsyncExecutionCommand<>(config.getCaller(), config.getContext(), callInfo.get()));
 		return this;
 	}
 
@@ -80,12 +74,12 @@ public class CallStream {
 			}
 		}
 		printResult();
-		executor.shutdown();
+		config.getExecutor().shutdown();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void printResult() {
-		List variable = this.context.get(RecorderCaller.RECORD_KEY_NAME, List.class);
+		List variable = config.getContext().get(RecorderCaller.RECORD_KEY_NAME, List.class);
 		Optional.ofNullable(variable)
 				.orElse(Collections.emptyList())
 				.forEach(System.out::println);
