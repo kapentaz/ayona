@@ -1,8 +1,11 @@
 package com.ayona;
 
+import com.ayona.util.ExceptionUtil;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+
+import java.util.Optional;
 
 @Slf4j
 public class ApiCallInfoTest {
@@ -16,6 +19,10 @@ public class ApiCallInfoTest {
 				.req(ctx -> "")
 				.res((ctx, res) -> {
 				})
+				.error((ctx, error) -> {
+					Optional<String> bodyAsString = ExceptionUtil.getResponseBodyAsString(error);
+					bodyAsString.ifPresent(s -> log.info("{}", s));
+				})
 				.build();
 
 		ApiCallInfo<String, String> second = ApiCallInfo.<String, String>builder()
@@ -28,10 +35,8 @@ public class ApiCallInfoTest {
 				})
 				.build();
 
-		first.add(second);
-
 		CallStream.create()
-				.add(() -> first)
+				.add(() -> first.add(second))
 				.run();
 	}
 

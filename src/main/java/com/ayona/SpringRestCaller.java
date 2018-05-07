@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -36,7 +37,12 @@ public class SpringRestCaller extends RecorderCaller<ApiCallInfo<?, ?>> {
 		httpHeaders.setContentType(mediaType);
 		HttpEntity httpEntity = new HttpEntity(req == null ? null : req, httpHeaders);
 
-		Object forObject = restTemplate.exchange(uri, method, httpEntity, req.getClass()).getBody();
+		Object forObject = null;
+		try {
+			forObject = restTemplate.exchange(uri, method, httpEntity, req.getClass()).getBody();
+		} catch (RestClientException e) {
+			apiCallInfo.getError().accept(context, e);
+		}
 
 		if (result != null) {
 			result.accept(context, forObject);
