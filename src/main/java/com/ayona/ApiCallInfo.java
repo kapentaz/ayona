@@ -4,7 +4,6 @@ import com.ayona.context.Context;
 import com.ayona.context.ContextConsumer;
 import com.ayona.context.ContextSupplier;
 import lombok.Getter;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
@@ -72,7 +71,6 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		private HttpMethod method;
 		private MediaType mediaType = MediaType.APPLICATION_JSON;
 		private ContextSupplier<I> req;
-		private ParameterizedTypeReference<O> resTypeRef;
 		private ContextConsumer<O> res;
 		private ContextConsumer<RestClientException> error;
 
