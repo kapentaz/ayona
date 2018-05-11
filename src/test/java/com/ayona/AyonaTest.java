@@ -2,6 +2,8 @@ package com.ayona;
 
 import org.junit.Test;
 
+import java.util.List;
+
 public class AyonaTest {
 
 	@Test
@@ -21,6 +23,14 @@ public class AyonaTest {
 	@Test
 	public void name() throws Exception {
 		CallStream.create()
+				.add(() -> ApiCallInfo.<String, List<String>>builder()
+						.id(ctx -> "기본 호출 테스트")
+						.post(ctx -> "http://localhost")
+						.req(ctx -> "")
+						.res((ctx, res) -> {
+						})
+						.resTypeRef(new TypeR<List<String>>(){})
+						.build())
 				.run();
 
 	}

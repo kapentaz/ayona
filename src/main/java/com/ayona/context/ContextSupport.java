@@ -1,5 +1,7 @@
 package com.ayona.context;
 
+import com.ayona.TypeR;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,6 +40,11 @@ public class ContextSupport implements Context {
 	@Override
 	public <T> T get(String name, Class<T> type) {
 		return type.cast(variables.get(name));
+	}
+
+	@Override
+	public <T> T get(String name, TypeR<T> type) {
+		return type.getType().cast(variables.get(name));
 	}
 
 }

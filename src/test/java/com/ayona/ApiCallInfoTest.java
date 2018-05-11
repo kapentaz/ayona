@@ -36,7 +36,7 @@ public class ApiCallInfoTest {
 				.build();
 
 		CallStream.create()
-				.add(() -> first.add(second))
+				.add(() -> first.next(second))
 				.run();
 	}
 

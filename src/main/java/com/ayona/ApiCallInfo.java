@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -27,10 +28,10 @@ public class ApiCallInfo<I, O> implements CallInfo {
 	private HttpMethod method;
 	@Getter
 	private MediaType mediaType;
-	@Getter
 	private ContextSupplier<I> req;
-	@Getter
 	private ContextConsumer<O> res;
+	@Getter
+	private Class<O> resType;
 	@Getter
 	private ContextConsumer<RestClientException> error;
 
@@ -41,6 +42,7 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		this.mediaType = builder.mediaType;
 		this.req = builder.req;
 		this.res = builder.res;
+		this.resType = builder.resType;
 		this.error = builder.error;
 	}
 
@@ -48,9 +50,17 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		return new ApiCallInfo.Builder<>();
 	}
 
-	public ApiCallInfo<I, O> add(ApiCallInfo callInfo) {
+	public ApiCallInfo<I, O> next(ApiCallInfo callInfo) {
 		callInfos.add(callInfo);
 		return this;
+	}
+
+	public Optional<ContextSupplier<I>> getReq() {
+		return Optional.ofNullable(req);
+	}
+
+	public Optional<ContextConsumer<O>> getRes() {
+		return Optional.ofNullable(res);
 	}
 
 	@Override
@@ -72,6 +82,7 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		private MediaType mediaType = MediaType.APPLICATION_JSON;
 		private ContextSupplier<I> req;
 		private ContextConsumer<O> res;
+		private Class<O> resType;
 		private ContextConsumer<RestClientException> error;
 
 		private Builder() {
@@ -84,6 +95,7 @@ public class ApiCallInfo<I, O> implements CallInfo {
 			this.mediaType = builder.mediaType;
 			this.req = builder.req;
 			this.res = builder.res;
+			this.resType = builder.resType;
 			this.error = builder.error;
 		}
 
@@ -137,9 +149,23 @@ public class ApiCallInfo<I, O> implements CallInfo {
 			return this;
 		}
 
+		public ApiCallInfo.Builder<I, O> resType(Class<O> resType) {
+			this.resType = resType;
+			return this;
+		}
+
+		public ApiCallInfo.Builder<I, O> resTypeRef(TypeR<O> resType) {
+			this.resType = resType.getType();
+			return this;
+		}
+
 		public ApiCallInfo.Builder<I, O> error(ContextConsumer<RestClientException> error) {
 			this.error = error;
 			return this;
+		}
+
+		public ApiCallInfo.Builder<I, O> copy() {
+			return new Builder<>(this);
 		}
 
 		public ApiCallInfo<I, O> build() {

@@ -1,5 +1,7 @@
 package com.ayona.context;
 
+import com.ayona.TypeR;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,6 +21,8 @@ public interface Context {
 	Object get(String name);
 
 	<T> T get(String name, Class<T> type);
+
+	<T> T get(String name, TypeR<T> type);
 
 	Object remove(String name);
 
