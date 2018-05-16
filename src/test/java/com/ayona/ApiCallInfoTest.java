@@ -40,4 +40,19 @@ public class ApiCallInfoTest {
 				.run();
 	}
 
+	@Test
+	public void loop() throws Exception {
+		ApiCallInfo<String, String> callInfo = ApiCallInfo.<String, String>builder()
+				.id(ctx -> "호출 테스트2")
+				.get(ctx -> "http://localhost?2=2")
+				.req(ctx -> "")
+				.res((ctx, res) -> {
+					res = "{\"data\":123123123}";
+					ctx.set("mainDealNo", JsonPath.parse(res).read("$.data"));
+				})
+				.build();
+
+		ApiCallInfo<String, String> loop = callInfo.copy(100);
+		loop.children().forEach(System.out::println);
+	}
 }

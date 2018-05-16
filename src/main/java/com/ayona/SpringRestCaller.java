@@ -44,8 +44,8 @@ public class SpringRestCaller extends RecorderCaller<ApiCallInfo<Object, Object>
 			Object forObject = restTemplate.exchange(uri, method, httpEntity, resType).getBody();
 			res.ifPresent(r -> r.accept(context, forObject));
 			return forObject;
-		} catch (RestClientException e) {
-			apiCallInfo.getError().accept(context, e);
+		} catch (RestClientException rce) {
+			apiCallInfo.getError().ifPresent(err -> err.accept(context, rce));
 		}
 		return null;
 	}

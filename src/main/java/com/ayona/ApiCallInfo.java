@@ -3,7 +3,10 @@ package com.ayona;
 import com.ayona.context.Context;
 import com.ayona.context.ContextConsumer;
 import com.ayona.context.ContextSupplier;
+import com.ayona.util.ExceptionUtil;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
@@ -11,6 +14,8 @@ import org.springframework.web.client.RestClientException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -32,8 +37,18 @@ public class ApiCallInfo<I, O> implements CallInfo {
 	private ContextConsumer<O> res;
 	@Getter
 	private Class<O> resType;
-	@Getter
 	private ContextConsumer<RestClientException> error;
+
+	private ApiCallInfo(ApiCallInfo<I, O> apiCallInfo) {
+		this.id = apiCallInfo.id;
+		this.uri = apiCallInfo.uri;
+		this.method = apiCallInfo.method;
+		this.mediaType = apiCallInfo.mediaType;
+		this.req = apiCallInfo.req;
+		this.res = apiCallInfo.res;
+		this.resType = apiCallInfo.resType;
+		this.error = apiCallInfo.error;
+	}
 
 	private ApiCallInfo(Builder<I, O> builder) {
 		this.id = builder.id;
@@ -63,6 +78,22 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		return Optional.ofNullable(res);
 	}
 
+	public Optional<ContextConsumer<RestClientException>> getError() {
+		return Optional.ofNullable(error);
+	}
+
+	public ApiCallInfo<I, O> copy() {
+		return new ApiCallInfo<>(this);
+	}
+
+	public ApiCallInfo<I, O> copy(int count) {
+		List<ApiCallInfo<I, O>> collect = IntStream.rangeClosed(1, count)
+				.mapToObj(i -> this.copy())
+				.collect(Collectors.toList());
+		collect.forEach(this::next);
+		return this;
+	}
+
 	@Override
 	public Stream<CallInfo> children() {
 		return Stream.concat(
@@ -76,6 +107,9 @@ public class ApiCallInfo<I, O> implements CallInfo {
 	}
 
 	public static class Builder<I, O> {
+
+		private static final Logger LOG = LoggerFactory.getLogger(Builder.class);
+
 		private ContextSupplier<String> id;
 		private ContextSupplier<String> uri;
 		private HttpMethod method;
@@ -83,7 +117,8 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		private ContextSupplier<I> req;
 		private ContextConsumer<O> res;
 		private Class<O> resType;
-		private ContextConsumer<RestClientException> error;
+		private ContextConsumer<RestClientException> error = (ctx, error) ->
+				ExceptionUtil.getResponseBodyAsString(error).ifPresent(res -> LOG.error("response body: {}", res));
 
 		private Builder() {
 		}
