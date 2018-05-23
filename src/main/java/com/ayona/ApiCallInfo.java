@@ -106,6 +106,9 @@ public class ApiCallInfo<I, O> implements CallInfo {
 		return "[" + mediaType + ", " + method + "] " + uri.get(context);
 	}
 
+	/**
+	 * ApiCallInfo 생성을 위한 Builder 클래스
+	 */
 	public static class Builder<I, O> {
 
 		private static final Logger LOG = LoggerFactory.getLogger(Builder.class);

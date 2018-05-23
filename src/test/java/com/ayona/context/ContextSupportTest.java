@@ -2,8 +2,10 @@ package com.ayona.context;
 
 import com.ayona.TypeR;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,13 +13,16 @@ import java.util.List;
 public class ContextSupportTest {
 
 	@Test
-	public void get() throws Exception {
+	public void genericContextDataTest() throws Exception {
 		ContextSupport contextSupport = new ContextSupport();
-		contextSupport.set("test", Arrays.asList(1, 2, 3));
+		contextSupport.set("test", Arrays.asList(LocalDate.of(1988, 1, 1), LocalDate.of(2018, 12, 31)));
 
-		List<Integer> test = contextSupport.get("test", new TypeR<List<Integer>>() {
+		List<LocalDate> test = contextSupport.get("test", new TypeR<List<LocalDate>>() {
 		});
-		test.forEach(i -> log.info("{}", i));
+		test.forEach(i -> {
+			log.info("Type:{}, Value:{}", i.getClass(), i);
+			Assert.assertEquals(LocalDate.class, i.getClass());
+		});
 	}
 
 }

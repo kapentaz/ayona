@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  */
 public interface Context {
 
-	String CONTEXT_DELIMITER = "$.";
+	String CONTEXT_DATA_DELIMITER = "$.";
 
 	void set(String name, Object value);
 
@@ -30,18 +30,32 @@ public interface Context {
 
 	boolean has(String name);
 
-	default String concat(Object... value) {
-		return format(Stream.of(value)
+	/**
+	 * values 의 각 객체를 문자열(toString())로 연결한다.
+	 *
+	 * @param values 대상 객체 배열
+	 * @return 연결된 문자열
+	 */
+	default String concat(Object... values) {
+		return format(Stream.of(values)
 				.map(v -> "{}")
-				.collect(Collectors.joining("")), value);
+				.collect(Collectors.joining("")), values);
 	}
 
-	default String format(String format, Object... value) {
+	/**
+	 * 내부적으로 replaceBraces 메소드를 호출한다.
+	 * 다른점은 value 가 String 타입이며 prefix 가 CONTEXT_DATA_DELIMITER 형태일 경우 {@link Context} 에 저장된 객체를 반환한다.
+	 *
+	 * @param format 대상 문자
+	 * @param values 치환할 객체 배열
+	 * @return 치환된 대상  문자
+	 */
+	default String format(String format, Object... values) {
 		List<Object> temp = new ArrayList<>();
-		for (Object obj : value) {
+		for (Object obj : values) {
 			if (obj.getClass() == String.class) {
 				String s = (String) obj;
-				if (s.startsWith(CONTEXT_DELIMITER)) {
+				if (s.startsWith(CONTEXT_DATA_DELIMITER)) {
 					temp.add(get(s.substring(2)));
 				} else {
 					temp.add(s);
@@ -53,6 +67,13 @@ public interface Context {
 		return replaceBraces(format, temp.toArray());
 	}
 
+	/**
+	 * {..} 문자를 objects 의 순서대로 치환한다.
+	 *
+	 * @param value   대상 문자
+	 * @param objects 치환할 객체 배열
+	 * @return 치환된 대상  문자
+	 */
 	default String replaceBraces(String value, Object... objects) {
 		Matcher matcher = Pattern.compile("\\{(.*?)\\}").matcher(value);
 
